@@ -174,4 +174,14 @@ describe('ScoringService', () => {
       expect(result.averageTimePerQuestion).toBe(30);
     });
   });
+
+  describe('getPerformanceLevel', () => {
+    it('should return correct performance levels', () => {
+      expect(service.getPerformanceLevel(100)).toBe('Congratulations, you got an interview!!');
+      expect(service.getPerformanceLevel(95)).toBe('Very Good - but not good enough!!');
+      expect(service.getPerformanceLevel(75)).toBe('Unfortunately, we are moving on with other candidates...');
+      expect(service.getPerformanceLevel(65)).toBe('Unfortunately, we are moving on with other candidates...');
+      expect(service.getPerformanceLevel(50)).toBe('Unfortunately, we are moving on with other candidates...');
+    });
+  })
 });
