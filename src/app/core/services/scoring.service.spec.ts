@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 
 import { ScoringService } from './scoring.service';
-import { Question } from '../models/question.model';
+import { Question, UserAnswer } from '../models/question.model';
 
 describe('ScoringService', () => {
   let service: ScoringService;
@@ -102,6 +102,76 @@ describe('ScoringService', () => {
       expect(service.checkAnswer(msQuestion, ['a'])).toBe(false); // Missing 'c'
       expect(service.checkAnswer(msQuestion, ['a', 'b', 'c'])).toBe(false); // Extra 'b'
     });
+  });
 
-  })
+  describe('calculateQuizResults', () => {
+    const questions: Question[] = [
+      {
+        id: '1',
+        text: 'Question 1',
+        answers: [{ id: 'a', text: 'A', isCorrect: true }],
+        isMultipleChoice: false,
+        points: 1
+      },
+      {
+        id: '2',
+        text: 'Question 2',
+        answers: [{ id: 'b', text: 'B', isCorrect: true }],
+        isMultipleChoice: false,
+        points: 1
+      },
+      {
+        id: '3',
+        text: 'Question 3',
+        answers: [{ id: 'c', text: 'C', isCorrect: true }],
+        isMultipleChoice: false,
+        points: 1
+      }
+    ];
+
+    it('should calculate perfect score with speed bonus', () => {
+      const userAnswers: UserAnswer[] = [
+        { questionId: '1', selectedAnswerIds: ['a'], timeSpent: 15, isCorrect: true },
+        { questionId: '2', selectedAnswerIds: ['b'], timeSpent: 20, isCorrect: true },
+        { questionId: '3', selectedAnswerIds: ['c'], timeSpent: 25, isCorrect: true }
+      ];
+
+      const result = service.calculateQuizResults(questions, userAnswers);
+      
+      expect(result.totalQuestions).toBe(3);
+      expect(result.correctAnswers).toBe(3);
+      expect(result.rawScore).toBe(3);
+      expect(result.speedBonusTotal).toBeGreaterThan(0);
+      expect(result.finalScore).toBeGreaterThan(3);
+      expect(result.percentage).toBe(100);
+    });
+
+    it('should calculate score with some incorrect answers', () => {
+      const userAnswers: UserAnswer[] = [
+        { questionId: '1', selectedAnswerIds: ['a'], timeSpent: 30, isCorrect: true },
+        { questionId: '2', selectedAnswerIds: ['wrong'], timeSpent: 30, isCorrect: false },
+        { questionId: '3', selectedAnswerIds: ['c'], timeSpent: 30, isCorrect: true }
+      ];
+
+      const result = service.calculateQuizResults(questions, userAnswers);
+      
+      expect(result.totalQuestions).toBe(3);
+      expect(result.correctAnswers).toBe(2);
+      expect(result.rawScore).toBe(2);
+      expect(result.percentage).toBeCloseTo(66.67, 0);
+    });
+
+    it('should calculate total time spent', () => {
+      const userAnswers: UserAnswer[] = [
+        { questionId: '1', selectedAnswerIds: ['a'], timeSpent: 20, isCorrect: true },
+        { questionId: '2', selectedAnswerIds: ['b'], timeSpent: 30, isCorrect: true },
+        { questionId: '3', selectedAnswerIds: ['c'], timeSpent: 40, isCorrect: true }
+      ];
+
+      const result = service.calculateQuizResults(questions, userAnswers);
+      
+      expect(result.totalTimeSpent).toBe(90);
+      expect(result.averageTimePerQuestion).toBe(30);
+    });
+  });
 });
