@@ -1,6 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 
 import { ScoringService } from './scoring.service';
+import { Question } from '../models/question.model';
 
 describe('ScoringService', () => {
   let service: ScoringService;
@@ -56,4 +57,51 @@ describe('ScoringService', () => {
       expect(bonus).toBeCloseTo(0.25, 2);
     });
   });
+
+  describe('checkAnswer', () => {
+    const question: Question = {
+      id: '1',
+      text:'What is 2 + 2 ?',
+      answers: [
+        { id: 'a', text: '3', isCorrect: false },
+        { id: 'b', text: '4', isCorrect: true },
+        { id: 'c', text: '5', isCorrect: false }
+      ],
+      isMultipleChoice: false,
+      points: 1
+    };
+
+    const msQuestion: Question = { // multiple select answers
+      id: '2',
+        text: 'Which are even numbers?',
+        answers: [
+          { id: 'a', text: '2', isCorrect: true },
+          { id: 'b', text: '3', isCorrect: false },
+          { id: 'c', text: '4', isCorrect: true },
+          { id: 'd', text: '5', isCorrect: false }
+        ],
+        isMultipleChoice: true,
+        points: 1
+    };
+
+    it('should return true for correct single-choice answer', () => {
+      expect(service.checkAnswer(question, ['b'])).toBe(true);
+    });
+
+    it('should return false for incorrect single-choice answer', () => {
+      expect(service.checkAnswer(question, ['a'])).toBe(false);
+      expect(service.checkAnswer(question, ['c'])).toBe(false);
+    });
+
+    it('should return true for correct multiple-choice answer', () => {
+      expect(service.checkAnswer(msQuestion, ['a', 'c'])).toBe(true);
+      expect(service.checkAnswer(msQuestion, ['c', 'a'])).toBe(true); // Order shouldn't matter
+    });
+
+    it('should return false for partially correct multiple-choice answer', () => {
+      expect(service.checkAnswer(msQuestion, ['a'])).toBe(false); // Missing 'c'
+      expect(service.checkAnswer(msQuestion, ['a', 'b', 'c'])).toBe(false); // Extra 'b'
+    });
+
+  })
 });
