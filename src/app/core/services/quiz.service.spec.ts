@@ -185,4 +185,48 @@ describe('QuizService', () => {
     });
   });
 
+  describe('submitAnswer', () => {
+    beforeEach(() => {
+      service.loadQuestions(mockQuestions);
+      service.startQuiz({
+        mode: QuizMode.ALL_QUESTIONS,
+        timePerQuestion: 60,
+        totalQuestions: 3
+      });
+    });
+
+    it('should record user answer', () => {
+      service.submitAnswer(['a'], 25);
+      
+      const answers = service.getUserAnswers();
+      expect(answers.length).toBe(1);
+      expect(answers[0].questionId).toBe('1');
+      expect(answers[0].selectedAnswerIds).toEqual(['a']);
+      expect(answers[0].timeSpent).toBe(25);
+    });
+
+    it('should mark correct answer as correct', () => {
+      service.submitAnswer(['a'], 25);
+      
+      const answers = service.getUserAnswers();
+      expect(answers[0].isCorrect).toBe(true);
+    });
+
+    it('should mark incorrect answer as incorrect', () => {
+      service.submitAnswer(['b'], 25);
+      
+      const answers = service.getUserAnswers();
+      expect(answers[0].isCorrect).toBe(false);
+    });
+
+    it('should handle multiple choice questions', () => {
+      service.nextQuestion(); // Move to question 2
+      service.submitAnswer(['a', 'b'], 30);
+      
+      const answers = service.getUserAnswers();
+      expect(answers[0].isCorrect).toBe(true);
+    });
+  });
+
+
 });
