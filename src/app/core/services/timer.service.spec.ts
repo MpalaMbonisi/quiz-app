@@ -85,4 +85,20 @@ describe('TimerService', () => {
       expect(timeAfterStop).toBe(timeBeforeStop);
     }));
   });
+
+  describe('getElapsedTime', () => {
+    it('should return 0 before timer starts', () => {
+      expect(service.getElapsedTime()).toBe(0);
+    });
+
+    it('should return elapsed time after timer starts', fakeAsync(() => {
+      service.startQuestionTimer(60);
+      
+      tick(2000);
+      
+      const elapsed = service.getElapsedTime();
+      expect(elapsed).toBeGreaterThan(1.9);
+      expect(elapsed).toBeLessThan(2.1);
+    }));
+  });
 });
