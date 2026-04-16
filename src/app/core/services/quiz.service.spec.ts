@@ -324,4 +324,24 @@ describe('QuizService', () => {
     });
   });
 
+  describe('hasAnsweredCurrentQuestion', () => {
+    beforeEach(() => {
+      service.loadQuestions(mockQuestions);
+      service.startQuiz({
+        mode: QuizMode.ALL_QUESTIONS,
+        timePerQuestion: 60,
+        totalQuestions: 3
+      });
+    });
+
+    it('should return false for unanswered question', () => {
+      expect(service.hasAnsweredCurrentQuestion()).toBe(false);
+    });
+
+    it('should return true for answered question', () => {
+      service.submitAnswer(['a'], 30);
+      expect(service.hasAnsweredCurrentQuestion()).toBe(true);
+    });
+  });
+
 });
