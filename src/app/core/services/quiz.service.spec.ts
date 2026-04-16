@@ -228,5 +228,46 @@ describe('QuizService', () => {
     });
   });
 
+  describe('nextQuestion and previousQuestion', () => {
+    beforeEach(() => {
+      service.loadQuestions(mockQuestions);
+      service.startQuiz({
+        mode: QuizMode.ALL_QUESTIONS,
+        timePerQuestion: 60,
+        totalQuestions: 3
+      });
+    });
+
+    it('should move to next question', () => {
+      const result = service.nextQuestion();
+      
+      expect(result).toBe(true);
+      expect(service.getCurrentQuestionIndex()).toBe(1);
+    });
+
+    it('should return false when at last question', () => {
+      service.nextQuestion();
+      service.nextQuestion();
+      const result = service.nextQuestion();
+      
+      expect(result).toBe(false);
+      expect(service.getCurrentQuestionIndex()).toBe(2);
+    });
+
+    it('should move to previous question', () => {
+      service.nextQuestion();
+      const result = service.previousQuestion();
+      
+      expect(result).toBe(true);
+      expect(service.getCurrentQuestionIndex()).toBe(0);
+    });
+
+    it('should return false when at first question', () => {
+      const result = service.previousQuestion();
+      
+      expect(result).toBe(false);
+      expect(service.getCurrentQuestionIndex()).toBe(0);
+    });
+  });
 
 });
