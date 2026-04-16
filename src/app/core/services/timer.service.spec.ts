@@ -101,4 +101,51 @@ describe('TimerService', () => {
       expect(elapsed).toBeLessThan(2.1);
     }));
   });
+
+  describe('getRemainingTime', () => {
+    it('should return 0 before timer starts', () => {
+      expect(service.getRemainingTime()).toBe(0);
+    });
+
+    it('should return remaining time', fakeAsync(() => {
+      service.startQuestionTimer(60);
+      
+      tick(1000);
+      
+      const remaining = service.getRemainingTime();
+      expect(remaining).toBeGreaterThan(58);
+      expect(remaining).toBeLessThan(60);
+    }));
+  });
+
+  describe('reset', () => {
+    it('should reset all timer values', fakeAsync(() => {
+      service.startQuestionTimer(60);
+      
+      tick(1000);
+      
+      service.reset();
+      
+      expect(service.getRemainingTime()).toBe(0);
+      expect(service.getElapsedTime()).toBe(0);
+    }));
+  });
+
+  describe('isTimeUp', () => {
+    it('should return false when time remaining', fakeAsync(() => {
+      service.startQuestionTimer(60);
+      
+      tick(1000);
+      
+      expect(service.isTimeUp()).toBe(false);
+    }));
+
+    it('should return true when time runs out', fakeAsync(() => {
+      service.startQuestionTimer(1);
+      
+      tick(2000);
+      
+      expect(service.isTimeUp()).toBe(true);
+    }));
+  });
 });
