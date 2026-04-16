@@ -344,4 +344,24 @@ describe('QuizService', () => {
     });
   });
 
+  describe('resetQuiz', () => {
+    beforeEach(() => {
+      service.loadQuestions(mockQuestions);
+      service.startQuiz({
+        mode: QuizMode.ALL_QUESTIONS,
+        timePerQuestion: 60,
+        totalQuestions: 3
+      });
+      service.submitAnswer(['a'], 30);
+    });
+
+    it('should reset all quiz state', () => {
+      service.resetQuiz();
+      
+      expect(service.getQuizQuestions().length).toBe(0);
+      expect(service.getUserAnswers().length).toBe(0);
+      expect(service.getCurrentQuestionIndex()).toBe(0);
+      expect(service.getQuizConfig()).toBeUndefined();
+    });
+  });
 });
