@@ -270,4 +270,30 @@ describe('QuizService', () => {
     });
   });
 
+  describe('isQuizComplete', () => {
+    beforeEach(() => {
+      service.loadQuestions(mockQuestions);
+      service.startQuiz({
+        mode: QuizMode.ALL_QUESTIONS,
+        timePerQuestion: 60,
+        totalQuestions: 3
+      });
+    });
+
+    it('should return false when quiz not complete', () => {
+      service.submitAnswer(['a'], 30);
+      expect(service.isQuizComplete()).toBe(false);
+    });
+
+    it('should return true when all questions answered', () => {
+      service.submitAnswer(['a'], 30);
+      service.nextQuestion();
+      service.submitAnswer(['a', 'b'], 30);
+      service.nextQuestion();
+      service.submitAnswer(['a'], 30);
+      
+      expect(service.isQuizComplete()).toBe(true);
+    });
+  });
+
 });
