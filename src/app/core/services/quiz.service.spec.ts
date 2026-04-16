@@ -163,4 +163,26 @@ describe('QuizService', () => {
     });
   });
 
+  describe('getCurrentQuestion', () => {
+    beforeEach(() => {
+      service.loadQuestions(mockQuestions);
+      service.startQuiz({
+        mode: QuizMode.ALL_QUESTIONS,
+        timePerQuestion: 60,
+        totalQuestions: 3
+      });
+    });
+
+    it('should return first question initially', () => {
+      const question = service.getCurrentQuestion();
+      expect(question?.id).toBe('1');
+    });
+
+    it('should return correct question after navigation', () => {
+      service.nextQuestion();
+      const question = service.getCurrentQuestion();
+      expect(question?.id).toBe('2');
+    });
+  });
+
 });
