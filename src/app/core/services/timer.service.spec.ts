@@ -69,4 +69,20 @@ describe('TimerService', () => {
       expect(timeRemaining).toBe(0);
     }));
   });
+
+  describe('stopTimer', () => {
+    it('should stop the countdown', fakeAsync(() => {
+      service.startQuestionTimer(60);
+      
+      tick(1000);
+      
+      const timeBeforeStop = service.getRemainingTime();
+      service.stopTimer();
+      
+      tick(1000);
+      
+      const timeAfterStop = service.getRemainingTime();
+      expect(timeAfterStop).toBe(timeBeforeStop);
+    }));
+  });
 });
