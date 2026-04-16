@@ -148,4 +148,38 @@ describe('TimerService', () => {
       expect(service.isTimeUp()).toBe(true);
     }));
   });
+
+  describe('formatTime', () => {
+    it('should format time correctly', () => {
+      expect(service.formatTime(0)).toBe('00:00');
+      expect(service.formatTime(30)).toBe('00:30');
+      expect(service.formatTime(60)).toBe('01:00');
+      expect(service.formatTime(125)).toBe('02:05');
+      expect(service.formatTime(3661)).toBe('61:01');
+    });
+  });
+
+  describe('getWarningLevel', () => {
+    it('should return normal for > 80% time remaining', () => {
+      expect(service.getWarningLevel(55)).toBe('normal');
+      expect(service.getWarningLevel(49)).toBe('normal');
+    });
+
+    it('should return warning for 55% - 80% time remaining', () => {
+      const service60s = TestBed.inject(TimerService);
+      service60s.startQuestionTimer(60);
+      
+      expect(service60s.getWarningLevel(46)).toBe('warning');
+      expect(service60s.getWarningLevel(40)).toBe('warning');
+    });
+
+    it('should return critical for <= 50% time remaining', () => {
+      const service60s = TestBed.inject(TimerService);
+      service60s.startQuestionTimer(60);
+      
+      expect(service60s.getWarningLevel(30)).toBe('critical');
+      expect(service60s.getWarningLevel(20)).toBe('critical');
+      expect(service60s.getWarningLevel(10)).toBe('critical');
+    });
+  });
 });
