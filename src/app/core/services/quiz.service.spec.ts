@@ -296,4 +296,32 @@ describe('QuizService', () => {
     });
   });
 
+  describe('getProgress', () => {
+    beforeEach(() => {
+      service.loadQuestions(mockQuestions);
+      service.startQuiz({
+        mode: QuizMode.ALL_QUESTIONS,
+        timePerQuestion: 60,
+        totalQuestions: 3
+      });
+    });
+
+    it('should return 0 at start', () => {
+      expect(service.getProgress()).toBe(0);
+    });
+
+    it('should return correct progress percentage', () => {
+      service.submitAnswer(['a'], 30);
+      expect(service.getProgress()).toBeCloseTo(33.33, 1);
+      
+      service.nextQuestion();
+      service.submitAnswer(['a', 'b'], 30);
+      expect(service.getProgress()).toBeCloseTo(66.67, 1);
+      
+      service.nextQuestion();
+      service.submitAnswer(['a'], 30);
+      expect(service.getProgress()).toBe(100);
+    });
+  });
+
 });
