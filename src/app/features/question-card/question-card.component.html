@@ -1,0 +1,44 @@
+<div class="question-card">
+  <div class="question-header">
+    <div class="question-number">Question {{ questionNumber }} of {{ totalQuestions }}</div>
+    @if (question.isMultipleChoice) {
+      <div class="multiple-choice-badge">✓ Multiple Answers</div>
+    }
+  </div>
+
+  <div class="question-text">
+    {{ question.text }}
+  </div>
+
+  @if (question.code) {
+    <div class="code-snippet">
+      <pre><code>{{ question.code }}</code></pre>
+    </div>
+  }
+
+  <div class="answers-container">
+    @for (answer of question.answers; track answer.id) {
+      <button
+        class="answer-option"
+        [class.selected]="isSelected(answer.id)"
+        [disabled]="disabled"
+        (click)="toggleAnswer(answer.id)"
+      >
+        <div class="answer-checkbox">
+          @if (question.isMultipleChoice) {
+            <span class="checkbox-icon">
+              {{ isSelected(answer.id) ? '☑' : '☐' }}
+            </span>
+          } @else {
+            <span class="radio-icon">
+              {{ isSelected(answer.id) ? '◉' : '○' }}
+            </span>
+          }
+        </div>
+        <div class="answer-text">
+          {{ answer.text }}
+        </div>
+      </button>
+    }
+  </div>
+</div>
