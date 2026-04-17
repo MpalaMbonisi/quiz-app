@@ -7,10 +7,11 @@ import { Subscription } from 'rxjs';
 import { QuizService } from '../../core/services/quiz.service';
 import { TimerService } from '../../core/services/timer.service';
 import { Router } from '@angular/router';
+import { FooterComponent } from '../footer/footer.component';
 
 @Component({
   selector: 'app-quiz.component',
-  imports: [CommonModule, TimerComponent, QuestionCardComponent],
+  imports: [CommonModule, TimerComponent, QuestionCardComponent, FooterComponent],
   templateUrl: './quiz.component.html',
   styleUrl: './quiz.component.scss',
 })

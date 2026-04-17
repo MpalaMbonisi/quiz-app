@@ -3,10 +3,11 @@ import { QuizMode } from '../../core/models/quiz-config.model';
 import { Router } from '@angular/router';
 import { QuizService } from '../../core/services/quiz.service';
 import { JAVA_QUESTIONS } from '../../core/data/questions.data';
+import { FooterComponent } from '../footer/footer.component';
 
 @Component({
   selector: 'app-welcome.component',
-  imports: [],
+  imports: [FooterComponent],
   templateUrl: './welcome.component.html',
   styleUrl: './welcome.component.scss',
 })

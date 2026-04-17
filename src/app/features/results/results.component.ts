@@ -3,10 +3,11 @@ import { QuizService } from '../../core/services/quiz.service';
 import { ScoringService } from '../../core/services/scoring.service';
 import { Router } from '@angular/router';
 import { QuizResult } from '../../core/models/quiz-result.model';
+import { FooterComponent } from '../footer/footer.component';
 
 @Component({
   selector: 'app-results',
-  imports: [],
+  imports: [FooterComponent],
   templateUrl: './results.component.html',
   styleUrl: './results.component.scss',
 })
