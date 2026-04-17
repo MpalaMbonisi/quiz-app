@@ -1,0 +1,41 @@
+<div class="quiz-container">
+  <div class="quiz-header">
+    <button class="quit-button" (click)="quitQuiz()">← Quit Quiz</button>
+    <div class="progress-info">
+      <div class="progress-text">
+        Progress: {{ currentQuestionIndex() + 1 }} / {{ totalQuestions() }}
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill" [style.width.%]="progress()"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="quiz-content">
+    <div class="timer-section">
+      <app-timer></app-timer>
+    </div>
+
+    @if (currentQuestion(); as question) {
+      <div class="question-section">
+        <app-question-card
+          [question]="question"
+          [questionNumber]="currentQuestionIndex() + 1"
+          [totalQuestions]="totalQuestions()"
+          [disabled]="hasAnswered()"
+          (answerSelected)="onAnswerSelected($event)"
+        ></app-question-card>
+      </div>
+
+      <div class="action-buttons">
+        @if (!hasAnswered()) {
+          <button class="submit-button" [disabled]="!canSubmit()" (click)="submitAnswer()">
+            Submit Answer
+          </button>
+        } @else {
+          <div class="waiting-message">Moving to next question...</div>
+        }
+      </div>
+    }
+  </div>
+</div>
