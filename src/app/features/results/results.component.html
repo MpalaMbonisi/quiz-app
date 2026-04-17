@@ -1,0 +1,114 @@
+<div class="results-container">
+  @if (results(); as result) {
+    <div class="results-card">
+      <div class="results-header">
+        @if (isPerfectScore()) {
+          <div class="celebration-icon">🎉</div>
+        }
+        <h1>Quiz Complete!</h1>
+        <p class="performance-message" [style.color]="getScoreColor(result.percentage)">
+          {{ performanceLevel() }}
+        </p>
+      </div>
+
+      <div class="score-display">
+        <div class="main-score">
+          <div class="score-circle" [style.border-color]="getScoreColor(result.percentage)">
+            <div class="score-value">{{ result.percentage.toFixed(1) }}%</div>
+            <div class="score-label">Final Score</div>
+          </div>
+        </div>
+
+        <div class="score-breakdown">
+          <div class="breakdown-item">
+            <div class="breakdown-content">
+              <div class="breakdown-value">
+                {{ result.correctAnswers }} / {{ result.totalQuestions }}
+              </div>
+              <div class="breakdown-label">Correct Answers</div>
+            </div>
+          </div>
+
+          <div class="breakdown-item">
+            <div class="breakdown-content">
+              <div class="breakdown-value">{{ result.rawScore.toFixed(1) }}</div>
+              <div class="breakdown-label">Base Score</div>
+            </div>
+          </div>
+
+          <div
+            class="breakdown-item"
+            [class.positive]="result.speedBonusTotal > 0"
+            [class.negative]="result.speedBonusTotal < 0"
+          >
+            <div class="breakdown-content">
+              <div class="breakdown-value">
+                {{ result.speedBonusTotal > 0 ? '+' : '' }}{{ result.speedBonusTotal.toFixed(2) }}
+              </div>
+              <div class="breakdown-label">Speed Bonus/Penalty</div>
+            </div>
+          </div>
+
+          <div class="breakdown-item">
+            <div class="breakdown-content">
+              <div class="breakdown-value">{{ formatTime(result.totalTimeSpent) }}</div>
+              <div class="breakdown-label">Total Time</div>
+            </div>
+          </div>
+
+          <div class="breakdown-item">
+            <div class="breakdown-content">
+              <div class="breakdown-value">{{ formatTime(result.averageTimePerQuestion) }}</div>
+              <div class="breakdown-label">Avg per Question</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="question-details">
+        <h2>Question Details</h2>
+        <div class="details-list">
+          @for (
+            questionResult of result.questionResults;
+            track questionResult.questionId;
+            let i = $index
+          ) {
+            <div
+              class="detail-item"
+              [class.correct]="questionResult.isCorrect"
+              [class.incorrect]="!questionResult.isCorrect"
+            >
+              <div class="detail-header">
+                <div class="detail-number">
+                  <span class="question-num">Q{{ i + 1 }}</span>
+                  <span class="status-icon">{{ questionResult.isCorrect ? '✓' : '✗' }}</span>
+                </div>
+                <div class="detail-score">
+                  {{ questionResult.finalScore.toFixed(2) }} pts
+                  @if (questionResult.speedBonus !== 0) {
+                    <span
+                      class="speed-indicator"
+                      [class.bonus]="questionResult.speedBonus > 0"
+                      [class.penalty]="questionResult.speedBonus < 0"
+                    >
+                      ({{ questionResult.speedBonus > 0 ? '+' : ''
+                      }}{{ (questionResult.speedBonus * 100).toFixed(0) }}%)
+                    </span>
+                  }
+                </div>
+              </div>
+              <div class="detail-question">{{ questionResult.questionText }}</div>
+              <div class="detail-time">Time: {{ formatTime(questionResult.timeSpent) }}</div>
+            </div>
+          }
+        </div>
+      </div>
+
+      <div class="action-buttons">
+        <button class="retake-button" (click)="retakeQuiz()">
+          <span>Retake Quiz</span>
+        </button>
+      </div>
+    </div>
+  }
+</div>
