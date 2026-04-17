@@ -1,0 +1,151 @@
+.welcome-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.welcome-card {
+  background: white;
+  border-radius: 1.5rem;
+  padding: 3rem;
+  max-width: 800px;
+  width: 100%;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+.welcome-header {
+  text-align: center;
+  margin-bottom: 3rem;
+
+  h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #1a202c;
+    margin: 0 0 0.5rem 0;
+  }
+
+  .subtitle {
+    font-size: 1.125rem;
+    color: #718096;
+    margin: 0;
+  }
+}
+
+.mode-selection {
+  margin-bottom: 2rem;
+
+  h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #2d3748;
+    margin: 0 0 1.5rem 0;
+    text-align: center;
+  }
+
+  .mode-options {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+  }
+
+  .mode-button {
+    background: white;
+    border: 2px solid #e2e8f0;
+    border-radius: 1rem;
+    padding: 1.5rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+
+    &:hover {
+      border-color: #eaa466;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+    }
+
+    &.selected {
+      border-color: #eaa466;
+      background: #e69249;
+      color: rgb(0, 0, 0);
+
+      .mode-title,
+      .mode-description {
+        color: black;
+      }
+
+      .mode-icon {
+        transform: scale(1.2);
+      }
+    }
+
+    .mode-icon {
+      font-size: 2.5rem;
+      margin-bottom: 0.75rem;
+      transition: transform 0.3s ease;
+    }
+
+    .mode-title {
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: #eaa466;
+      margin-bottom: 0.5rem;
+    }
+
+    .mode-description {
+      font-size: 0.875rem;
+      color: #718096;
+      line-height: 1.4;
+    }
+  }
+}
+
+.start-button {
+  width: 100%;
+  padding: 1.25rem 2rem;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: white;
+  background: #eaa466;
+  border: none;
+  border-radius: 0.75rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+
+  .arrow {
+    font-size: 1.5rem;
+    transition: transform 0.3s ease;
+  }
+
+  &:hover .arrow {
+    transform: translateX(4px);
+  }
+}
+
+@media (max-width: 768px) {
+  .welcome-card {
+    padding: 2rem;
+  }
+
+  .welcome-header h1 {
+    font-size: 2rem;
+  }
+
+  .mode-selection .mode-options {
+    grid-template-columns: 1fr;
+  }
+}

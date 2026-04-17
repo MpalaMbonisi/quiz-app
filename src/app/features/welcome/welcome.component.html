@@ -1,0 +1,48 @@
+<div class="welcome-container">
+  <div class="welcome-card">
+    <div class="welcome-header">
+      <h1>Java Quiz Challenge</h1>
+      <p class="subtitle">Test your Java programming knowledge</p>
+    </div>
+
+    <div class="mode-selection">
+      <h2>Choose Quiz Mode</h2>
+      <div class="mode-options">
+        <button
+          class="mode-button"
+          [class.selected]="selectedMode() === QuizMode.ALL_QUESTIONS"
+          (click)="selectMode(QuizMode.ALL_QUESTIONS)"
+        >
+          <div class="mode-icon">📚</div>
+          <div class="mode-title">All Questions</div>
+          <div class="mode-description">Answer all available questions</div>
+        </button>
+
+        <button
+          class="mode-button"
+          [class.selected]="selectedMode() === QuizMode.RANDOM_23_FIXED_ANSWERS"
+          (click)="selectMode(QuizMode.RANDOM_23_FIXED_ANSWERS)"
+        >
+          <div class="mode-icon">🎲</div>
+          <div class="mode-title">Random 23 (Fixed)</div>
+          <div class="mode-description">Random questions, same answer order</div>
+        </button>
+
+        <button
+          class="mode-button"
+          [class.selected]="selectedMode() === QuizMode.RANDOM_23_RANDOM_ANSWERS"
+          (click)="selectMode(QuizMode.RANDOM_23_RANDOM_ANSWERS)"
+        >
+          <div class="mode-icon">🔀</div>
+          <div class="mode-title">Random 23 (Shuffled)</div>
+          <div class="mode-description">Random questions & shuffled answers</div>
+        </button>
+      </div>
+    </div>
+
+    <button class="start-button" (click)="startQuiz()">
+      <span>Start Quiz</span>
+      <span class="arrow">→</span>
+    </button>
+  </div>
+</div>
