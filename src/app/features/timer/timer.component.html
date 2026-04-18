@@ -1,4 +1,4 @@
-<div class="timer-container" [attr.data-warning]="warningLevel()">
+<div class="timer-container">
   <div class="timer-display">
     <div class="timer-icon">⏱️</div>
     <div class="timer-content">
@@ -6,16 +6,4 @@
       <div class="time-label">remaining</div>
     </div>
   </div>
-
-  <div class="progress-bar">
-    <div
-      class="progress-fill"
-      [style.width.%]="(timeRemaining() / 60) * 100"
-      [attr.data-warning]="warningLevel()"
-    ></div>
-  </div>
-
-  @if (warningLevel() === 'critical') {
-    <div class="warning-message">⚠️ Time is running out!</div>
-  }
 </div>
