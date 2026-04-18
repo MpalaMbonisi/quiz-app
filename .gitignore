@@ -45,3 +45,6 @@ Thumbs.db
 
 # Husky
 .husky/_/
+
+# Exclude questions data file from git tracking
+src/app/core/data/questions.data.ts
