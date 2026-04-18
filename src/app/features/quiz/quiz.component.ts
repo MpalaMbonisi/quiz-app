@@ -42,7 +42,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
 
     this.totalQuestions.set(this.quizService.getTotalQuestions());
-    this.loadCurrentQuestion();
 
     // Subscribe to question index changes
     this.currentQuestionSubscription = this.quizService.currentQuestionIndex$.subscribe(index => {
@@ -77,7 +76,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
 
     // Start timer for new question (if not already answered)
-    if (!this.hasAnswered) {
+    if (!this.hasAnswered()) {
       const config = this.quizService.getQuizConfig();
       this.timerService.startQuestionTimer(config?.timePerQuestion || 60);
     }
