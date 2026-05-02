@@ -32,20 +32,7 @@
           <div class="breakdown-item">
             <div class="breakdown-content">
               <div class="breakdown-value">{{ result.rawScore.toFixed(1) }}</div>
-              <div class="breakdown-label">Base Score</div>
-            </div>
-          </div>
-
-          <div
-            class="breakdown-item"
-            [class.positive]="result.speedBonusTotal > 0"
-            [class.negative]="result.speedBonusTotal < 0"
-          >
-            <div class="breakdown-content">
-              <div class="breakdown-value">
-                {{ result.speedBonusTotal > 0 ? '+' : '' }}{{ result.speedBonusTotal.toFixed(2) }}
-              </div>
-              <div class="breakdown-label">Speed Bonus/Penalty</div>
+              <div class="breakdown-label">Total Points Earned</div>
             </div>
           </div>
 
@@ -65,8 +52,16 @@
         </div>
       </div>
 
+      <div class="action-buttons">
+        <button class="retake-button" (click)="retakeQuiz()">
+          <span>Retake Quiz</span>
+        </button>
+      </div>
+
       <div class="question-details">
-        <h2>Question Details</h2>
+        <h2>Question Review</h2>
+        <p class="instruction">Click a question to see your answer details.</p>
+
         <div class="details-list">
           @for (
             questionResult of result.questionResults;
@@ -74,40 +69,66 @@
             let i = $index
           ) {
             <div
-              class="detail-item"
-              [class.correct]="questionResult.isCorrect"
-              [class.incorrect]="!questionResult.isCorrect"
+              class="detail-item-container"
+              [class.expanded]="selectedQuestionId() === questionResult.questionId"
             >
-              <div class="detail-header">
-                <div class="detail-number">
-                  <span class="question-num">Q{{ i + 1 }}</span>
-                  <span class="status-icon">{{ questionResult.isCorrect ? '✓' : '✗' }}</span>
+              <div
+                class="detail-item"
+                [class.correct]="questionResult.isCorrect"
+                [class.incorrect]="!questionResult.isCorrect"
+                (click)="toggleQuestionDetails(questionResult.questionId)"
+              >
+                <div class="detail-header">
+                  <div class="detail-number">
+                    <span class="question-num">Q{{ i + 1 }}</span>
+                    <span class="status-icon">{{ questionResult.isCorrect ? '✓' : '✗' }}</span>
+                  </div>
+                  <div class="detail-score">
+                    {{ questionResult.finalScore.toFixed(2) }} pts
+                    <span class="expand-arrow">{{
+                      selectedQuestionId() === questionResult.questionId ? '▼' : '▶'
+                    }}</span>
+                  </div>
                 </div>
-                <div class="detail-score">
-                  {{ questionResult.finalScore.toFixed(2) }} pts
-                  @if (questionResult.speedBonus !== 0) {
-                    <span
-                      class="speed-indicator"
-                      [class.bonus]="questionResult.speedBonus > 0"
-                      [class.penalty]="questionResult.speedBonus < 0"
-                    >
-                      ({{ questionResult.speedBonus > 0 ? '+' : ''
-                      }}{{ (questionResult.speedBonus * 100).toFixed(0) }}%)
-                    </span>
-                  }
-                </div>
+                <div class="detail-question">{{ questionResult.questionText }}</div>
+                <div class="detail-time">Time: {{ formatTime(questionResult.timeSpent) }}</div>
               </div>
-              <div class="detail-question">{{ questionResult.questionText }}</div>
-              <div class="detail-time">Time: {{ formatTime(questionResult.timeSpent) }}</div>
+
+              @if (selectedQuestionId() === questionResult.questionId) {
+                <div class="answer-review-panel">
+                  @let originalQ = getOriginalQuestion(questionResult.questionId);
+                  @let userAns = getUserAnswerForQuestion(questionResult.questionId);
+
+                  <div class="options-grid">
+                    @for (option of originalQ?.answers; track option.id) {
+                      <div
+                        class="option-row"
+                        [class.is-correct]="option.isCorrect"
+                        [class.user-selected]="userAns?.selectedAnswerIds?.includes(option.id)"
+                        [class.was-wrong]="
+                          userAns?.selectedAnswerIds?.includes(option.id) && !option.isCorrect
+                        "
+                      >
+                        <span class="marker">
+                          @if (option.isCorrect) {
+                            ✓
+                          } @else if (userAns?.selectedAnswerIds?.includes(option.id)) {
+                            ✗
+                          }
+                        </span>
+                        <span class="option-text">{{ option.text }}</span>
+
+                        @if (userAns?.selectedAnswerIds?.includes(option.id)) {
+                          <span class="your-answer-label">(Your Answer)</span>
+                        }
+                      </div>
+                    }
+                  </div>
+                </div>
+              }
             </div>
           }
         </div>
-      </div>
-
-      <div class="action-buttons">
-        <button class="retake-button" (click)="retakeQuiz()">
-          <span>Retake Quiz</span>
-        </button>
       </div>
     </div>
   }
