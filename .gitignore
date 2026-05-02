@@ -48,3 +48,4 @@ Thumbs.db
 
 # Exclude questions data file from git tracking
 src/app/core/data/questions.data.ts
+/src/app/core/data/english-questions.data.ts
