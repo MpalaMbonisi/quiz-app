@@ -1,153 +1,117 @@
 import { Injectable } from '@angular/core';
 import { Question, UserAnswer } from '../models/question.model';
 import { QuestionResult, QuizResult } from '../models/quiz-result.model';
+
 @Injectable({
   providedIn: 'root',
 })
 export class ScoringService {
-  // Speed Bonus configuration
-  private readonly OPTIMAL_TIME = 30; // Sweet spot for answering (30 seconds)
-  private readonly MAX_TIME = 60;
-  private readonly MAX_SPEED_BONUS = 0.25; // 25% bonus for very fast, accurate answers
-  private readonly MIN_SPEED_PENALTY = -0.1; // 10% penalty for very slow answers
-
-  constructor() {}
+  // Speed Multiplier configuration
+  private readonly OPTIMAL_TIME = 20; // Answers within 20s get full 1.0 points
+  private readonly MAX_TIME = 60; // Answers at 60s get the minimum points
+  private readonly MIN_SPEED_FACTOR = 0.5; // Minimum 50% of the points if correct but slow
 
   /**
-   * Calculate speed bonus/penalty based on time spent
-   * Formula: 
-   * - Fast answers (< OPTIMAL_TIME): Bonus increases as time decreases
-   * - Slow answers (> OPTIMAL_TIME): Small penalty increases as time increases
-   * - Very slow answers (near MAX_TIME): Capped penalty to avoid over-punishing
-   * 
-   * The formula rewards speed but doesn't excessively punish accuracy
+   * Calculates a multiplier between MIN_SPEED_FACTOR and 1.0
    */
-  calculateSpeedBonus(timeSpent: number, isCorrect: boolean): number{
-    // No bonus for incorrect answers
-    if(!isCorrect){
+  calculateSpeedMultiplier(timeSpent: number, isCorrect: boolean): number {
+    if (!isCorrect) {
       return 0;
     }
 
-    // Clamp time to max allowed
+    // Clamp time
     const clampedTime = Math.min(timeSpent, this.MAX_TIME);
 
+    // If answered within optimal time, give full points (1.0)
     if (clampedTime <= this.OPTIMAL_TIME) {
-      // Fast answer: Give bonus (exponential curve for faster answers)
-      // At 10 seconds: ~0.22 bonus (22%)
-      // At 20 seconds: ~0.10 bonus (10%)
-      // At 30 seconds: 0 bonus
-      const timeRatio = clampedTime / this.OPTIMAL_TIME;
-      return this.MAX_SPEED_BONUS * (1 - Math.pow(timeRatio, 2));
+      return 1.0;
     }
-    else{
-      // Slow answer: Apply small penalty (linear decrease)
-      // At 40 seconds: ~-0.033 penalty (-3.3%)
-      // At 50 seconds: ~-0.067 penalty (-6.7%)
-      // At 60 seconds: -0.1 penalty (-10%)
-      const excessTime = clampedTime - this.OPTIMAL_TIME;
-      const maxExcessTime = this.MAX_TIME - this.OPTIMAL_TIME;
-      return this.MIN_SPEED_PENALTY * (excessTime/ maxExcessTime);
-    }
+
+    // If slower than optimal, calculate a decay
+    // Formula: Scale the remaining time between OPTIMAL and MAX into a 1.0 to MIN_SPEED_FACTOR range
+    const excessTime = clampedTime - this.OPTIMAL_TIME;
+    const maxExcessTime = this.MAX_TIME - this.OPTIMAL_TIME;
+
+    const penalty = (1 - this.MIN_SPEED_FACTOR) * (excessTime / maxExcessTime);
+    return 1.0 - penalty;
   }
 
-  /**
-   * Check if user's answer is correct
-   */
   checkAnswer(question: Question, selectedAnswerIds: string[]): boolean {
-    // Get all correct answers IDs
     const correctAnswerIds = question.answers
       .filter(answer => answer.isCorrect)
       .map(answer => answer.id)
       .sort();
 
-    // Compare selected answers with correct answers
     const sortedSelectedIds = [...selectedAnswerIds].sort();
 
-    // Must match exactly (same length and same IDs)
     return (
-      correctAnswerIds.length == sortedSelectedIds.length &&
+      correctAnswerIds.length === sortedSelectedIds.length &&
       correctAnswerIds.every((id, index) => id === sortedSelectedIds[index])
     );
   }
 
-  /**
-   * Calculate individual question score with speed bonus
-   */
-  calculateQuestionScore(
-    question: Question,
-    userAnswer: UserAnswer
-  ): QuestionResult {
+  calculateQuestionScore(question: Question, userAnswer: UserAnswer): QuestionResult {
+    // We treat question.points as the max possible value (e.g., 1)
+    const maxPoints = question.points || 1;
 
-    const baseScore = userAnswer.isCorrect ? question.points : 0;
-    const speedBonus = this.calculateSpeedBonus(
+    const speedMultiplier = this.calculateSpeedMultiplier(
       userAnswer.timeSpent,
       userAnswer.isCorrect
     );
-    const bonusPoints = baseScore * speedBonus;
-    const finalScore = baseScore + bonusPoints;
+
+    const finalScore = maxPoints * speedMultiplier;
 
     return {
       questionId: question.id,
       questionText: question.text,
       isCorrect: userAnswer.isCorrect,
       timeSpent: userAnswer.timeSpent,
-      speedBonus: speedBonus,
-      finalScore: Math.max(0, finalScore) // Ensure non-negative
+      speedBonus: speedMultiplier, // Renamed conceptually to multiplier
+      finalScore: parseFloat(finalScore.toFixed(2)),
     };
-  };
+  }
 
-  /**
-   * Calculate final quiz results
-   */
-  calculateQuizResults(
-    questions: Question[],
-    userAnswers: UserAnswer[]
-  ): QuizResult{
-
+  calculateQuizResults(questions: Question[], userAnswers: UserAnswer[]): QuizResult {
     const questionResults: QuestionResult[] = [];
-    let rawScore = 0;
-    let speedBonusTotal = 0;
+    let totalScore = 0;
     let totalTimeSpent = 0;
+    let correctCount = 0;
 
-    // Calculate score for each question
     questions.forEach(question => {
-      const userAnswer = userAnswers.find(
-        ua => ua.questionId == question.id
-      );
+      const userAnswer = userAnswers.find(ua => ua.questionId === question.id);
 
       if (userAnswer) {
-        const questionResult = this.calculateQuestionScore(question, userAnswer);
-        questionResults.push(questionResult);
+        const result = this.calculateQuestionScore(question, userAnswer);
+        questionResults.push(result);
 
-        if (questionResult.isCorrect) {
-          rawScore += question.points;
+        if (result.isCorrect) {
+          correctCount++;
         }
-        speedBonusTotal += questionResult.speedBonus * question.points;
+        totalScore += result.finalScore;
         totalTimeSpent += userAnswer.timeSpent;
       }
     });
 
-    const finalScore = rawScore + speedBonusTotal;
-    const maxPossibleScore = questions.reduce((sum, q) => sum + q.points, 0);
-    const percentage = (finalScore / maxPossibleScore) * 100;
+    const maxPossibleScore = questions.length; // Max 1 point per question
+    const percentage = (totalScore / maxPossibleScore) * 100;
 
     return {
       totalQuestions: questions.length,
-      correctAnswers: rawScore, // Since each question is 1 point
-      rawScore,
-      speedBonusTotal,
-      finalScore: Math.max(0, finalScore), // Ensure non-negative
-      percentage: Math.max(0, Math.min(100, percentage)), // Clamp to 0-100
+      correctAnswers: correctCount,
+      rawScore: totalScore,
+      speedBonusTotal: 0, // No longer additive bonus
+      finalScore: totalScore,
+      percentage: Math.min(100, percentage),
       totalTimeSpent,
       averageTimePerQuestion: totalTimeSpent / questions.length,
       questionResults,
-      userAnswers
+      userAnswers,
     };
   }
 
   getPerformanceLevel(percentage: number): string {
-    if (percentage == 100) return 'Congratulations, you got an interview!!';
-    if (percentage >= 95) return 'Very Good - but not good enough!!'
+    if (percentage >= 99) return 'Congratulations, you got an interview!!';
+    if (percentage >= 80) return 'Very Good - but not quite there.';
     return 'Unfortunately, we are moving on with other candidates...';
   }
 }
